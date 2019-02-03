@@ -11,39 +11,116 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
-	<style>
-	.hidden{
-		display: none;
-	}
-	.show {
-		display: inline-block;
-	}
-	</style>
+  
+</head>
+<style>
+.hidden{
+	display: none;
+}
+.show {
+	display: inline-block;
+}
+.nav-tabs > li > a {
+
+border: 1px solid #ddd;
+
+}
+</style>
 </head>
 <body class="use-all-space">
 	<div class="jumbotron text-center">
 	  <h1>Emergency Maps</h1>
 	</div>
-	  
-	<div class="container">
-	  <div class="row">
-		<div id='map' style='height:500px;width:500px'></div>
-	  </div>
-	</div>
-	<div class="container">
-	  <div class="row">
-		<input type='submit' id='AddMarker' value='Add Debris'/>
-		<input type='submit' id='PlaceMarker' value='Place Debris' class="hidden"/>
-	  </div>
-	</div>
+	
+	<ul class="nav nav-tabs  " id = "MyTab">
+		<li  class="active"><a data-toggle="tab" href="#main"><font color="black" size = "3"><strong>Home</strong></font></a></li>
+		<li><a data-toggle="tab" href="#tableTab"><font color="black" size = "3"><strong>Table</strong></font></a></li>
+		<li><a data-toggle="tab" href="#tableTabOld"><font color="black" size = "3"><strong>Old Data</strong></font></a></li>
+	</ul>
+		<div class="tab-content">
+			<div id="main" class="tab-pane active">	
 
-    <div class="container">
-	  <div class="row">
-		<input type='submit' id='AddFire' value='Add Fire'/>
-		<input type='submit' id='PlaceFire' value='Place Fire' class="hidden"/>
-	  </div>
-	</div>
+				<div class="container">
+				  <div class="row">
+					<div id='map' style='height:500px;width:500px'></div>
+				  </div>
+				</div>
+				<div class="container">
+				  <div class="row">
+					<input type='submit' id='AddMarker' value='Add Debris'/>
+					<input type='submit' id='PlaceMarker' value='Place Debris' class="hidden"/>
+				  </div>
+				</div>
+
+				<div class="container">
+				  <div class="row">
+					<input type='submit' id='AddFire' value='Add Fire'/>
+					<input type='submit' id='PlaceFire' value='Place Fire' class="hidden"/>
+				  </div>
+				</div>
+			</div>
+			<div id="tableTab" class="tab-pane fade">
+			  
+				<table class="table table-hover" >
+					<thead>
+					  <tr>
+						<th>Latitude</th>
+						<th>Longitude</th>
+						<th>ImageStr/Type</th>
+					  </tr>
+					</thead>
+					<tbody id="myTable">
+					  
+					</tbody>
+				</table>
+			</div>
+			<div id="tableTabOld" class="tab-pane fade">
+			  
+				<table class="table table-hover" >
+					<thead>
+					  <tr>
+						<th>Latitude</th>
+						<th>Longitude</th>
+						<th>ImageStr/Type</th>
+					  </tr>
+					</thead>
+					<tbody id="myTableOld">
+					  
+					<tr><td>32.57476531177761</td><td>-85.49093627982076</td><td>ic_map_poi_068-white.png</td></tr><tr><td>32.57331872753074</td><td>-85.51119232230121</td><td>ic_map_poi_068-white.png</td></tr><tr><td>32.58228717369988</td><td>-85.4765167241567</td><td>ic_map_poi_130-white.png</td></tr><tr><td>32.58575858944928</td><td>-85.50844574026996</td><td>ic_map_poi_068-white.png</td></tr><tr><td>32.588072791932916</td><td>-85.47857666068013</td><td>ic_map_poi_130-white.png</td></tr><tr><td>32.59414728917371</td><td>-85.46175384573871</td><td>ic_map_poi_068-white.png</td></tr><tr><td>32.60137829664747</td><td>-85.49436950735982</td><td>ic_map_poi_130-white.png</td></tr></tbody>
+				</table>
+			</div>
+		</div>
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
     <script>
+		function writeToTable(latVal, lngVal, imgVal) {
+			var table = document.getElementById("myTable");
+			var row = table.insertRow(0);
+			var lat = row.insertCell(0);
+			var lng = row.insertCell(1);
+			var img = row.insertCell(2);
+			lat.innerHTML = latVal;
+			lng.innerHTML = lngVal;
+			img.innerHTML  = imgVal;
+		
+		}
+		
+		function readFromTable() {
+			
+		
+		}
+	
         (function(tomtom) {
             // Setting TomTom keys
             tomtom.searchKey('v6ZqoCn0s48xnpkDFJQYfuxIMlTea6HQ');
@@ -96,10 +173,39 @@
   myMap.setView([position.coords.latitude,position.coords.longitude], 12);
   
 }
-tomtom.L.marker([43.26456, -71.5702], markerOptions).addTo(myMap);
-tomtom.L.marker([39.73845, -104.98485], markerOptions).addTo(myMap);
-tomtom.L.marker([34.05224, -118.24334], markerOptions).addTo(myMap);
-tomtom.L.marker([37.78008, -122.42017], markerOptions).addTo(myMap);
+
+
+var table = document.getElementById("myTableOld");
+for (var i = 0, row; row = table.rows[i]; i++) {
+   for (var j = 0, col; col = row.cells[j]; j++) {
+		console.log(col.innerHTML);
+		if (j==0) {
+			lat = col.innerHTML;
+		}
+		if (j==1) {
+			lng = col.innerHTML;
+		}
+		if (j==2) {
+			img = col.innerHTML;
+		}
+   } 
+	position = [lat, lng]
+	var markerOptions = {
+			icon: tomtom.L.svgIcon({
+				icon: {
+					icon: img,
+					iconSize: [32, 37],
+					iconAnchor: [0, 0],
+					style: {
+						color: '#fff'
+					},
+					noPlainSVG: true
+				}
+			})
+	};
+	tomtom.L.marker(position, markerOptions).addTo(myMap);
+	
+}
 
             //var  positionElement = document.getElementById('position');
 
@@ -149,9 +255,10 @@ tomtom.L.marker([37.78008, -122.42017], markerOptions).addTo(myMap);
                 myMap.removeLayer(marker);
 				console.log(mymarkerOptions);
                 marker = tomtom.L.marker(position, mymarkerOptions).addTo(myMap);
-                
+				
 				sessionStorage.setItem("lat", position.lat);
 				sessionStorage.setItem("lng", position.lng);
+				sessionStorage.setItem("img", imgStr);
             }
 
             function reverseGeocodeRequest(position, i) {
@@ -173,6 +280,7 @@ tomtom.L.marker([37.78008, -122.42017], markerOptions).addTo(myMap);
 				document.getElementById('PlaceMarker').classList.add("hidden");
 				document.getElementById('AddMarker').classList.add("show");
 				document.getElementById('AddFire').classList.add("show");
+				writeToTable(sessionStorage.getItem("lat"), sessionStorage.getItem("lng"), sessionStorage.getItem("img"));
                 window.sessionStorage.setItem("canPlace", "False")
 			};
 			document.getElementById('AddMarker').onclick = function() {
@@ -217,6 +325,7 @@ tomtom.L.marker([37.78008, -122.42017], markerOptions).addTo(myMap);
 				document.getElementById('PlaceMarker').classList.add("hidden");
 				document.getElementById('AddFire').classList.add("show");
 				document.getElementById('PlaceFire').classList.add("hidden");
+				writeToTable(sessionStorage.getItem("lat"), sessionStorage.getItem("lng"), sessionStorage.getItem("img"));
                 window.sessionStorage.setItem("canPlace", "False")
 			};
 			document.getElementById('AddFire').onclick = function() {
