@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>My map</title>
+        <link rel='stylesheet' type='text/css' href='sdk/map.css'/>
+        <script src='sdk/tomtom.min.js'></script>
+    </head>
+    <body>
+        <div id='map' style='height:500px;width:500px'></div>
+        <script>
+	    tomtom.setProductInfo('Emergency-Map.com', 'Version 0.1');
+            tomtom.L.map('map', {
+		    key: 'OT3ebR6Mm7OeGnsKRzsidVTR2OX3pyGx',
+                    source: 'vector',
+                    basePath: '/sdk'
+	    });
+        </script>
+    </body>
+</html>
