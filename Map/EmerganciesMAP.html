@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html class="use-all-space">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta charset='UTF-8'>
+    <title>Maps SDK for Web - Reverse geocode</title>
+    <meta name='viewport' content='width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no'/>
+    <link rel='stylesheet' type='text/css' href="sdk/map.css"/>
+    <script type='text/javascript' src='sdk/tomtom.min.js'></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	<style>
+	.hidden{
+		display: none;
+	}
+	.show {
+		display: inline-block;
+	}
+	</style>
+</head>
+<body class="use-all-space">
+	<div class="jumbotron text-center">
+	  <h1>Emergency Maps</h1>
+	</div>
+	  
+	<div class="container">
+	  <div class="row">
+		<div id='map' style='height:500px;width:500px'></div>
+	  </div>
+	</div>
+	<div class="container">
+	  <div class="row">
+		<input type='submit' id='AddMarker' value='Add Debris'/>
+		<input type='submit' id='PlaceMarker' value='Place Debris' class="hidden"/>
+	  </div>
+	</div>
+
+    <div class="container">
+	  <div class="row">
+		<input type='submit' id='AddFire' value='Add Fire'/>
+		<input type='submit' id='PlaceFire' value='Place Fire' class="hidden"/>
+	  </div>
+	</div>
+    <script>
+        (function(tomtom) {
+            // Setting TomTom keys
+            tomtom.searchKey('v6ZqoCn0s48xnpkDFJQYfuxIMlTea6HQ');
+
+            // Creating map
+            var markerOptions = {
+						icon: tomtom.L.svgIcon({
+							icon: {
+								icon: 'ic_map_poi_068-white.png',
+								iconSize: [32, 37],
+								iconAnchor: [0, 0],
+								style: {
+									color: '#fff'
+								},
+								noPlainSVG: true
+							}
+						})
+					};
+	 tomtom.setProductInfo('<your-product-name>', '<your-product-version>');
+        var myMap =    tomtom.L.map('map', {
+		    key: 'v6ZqoCn0s48xnpkDFJQYfuxIMlTea6HQ',
+                    source: 'vector',
+                    basePath: '/sdk'
+	    });
+		var marker
+		// Adding marker to the map
+		marker = tomtom.L.marker([32.598273, -85.480119], {
+			draggable: true
+		}).bindPopup('Amsterdam').addTo(myMap);
+		// Show popup each time the marker is moved
+		marker.on('dragend', function(e) {
+			tomtom.reverseGeocode({position: e.target.getLatLng()})
+				.go(function(response) {
+					if (response && response.address && response.address.freeformAddress) {
+						marker.setPopupContent(response.address.freeformAddress);
+					} else {
+						marker.setPopupContent('No results found');
+					}
+					marker.openPopup();
+				});
+			});
+		
+	if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(showPosition);
+		
+  } else { 
+    window.alert("Geolocation is not supported by this browser.");
+  }
+  function showPosition(position) {
+  myMap.setView([position.coords.latitude,position.coords.longitude], 12);
+  
+}
+tomtom.L.marker([43.26456, -71.5702], markerOptions).addTo(myMap);
+tomtom.L.marker([39.73845, -104.98485], markerOptions).addTo(myMap);
+tomtom.L.marker([34.05224, -118.24334], markerOptions).addTo(myMap);
+tomtom.L.marker([37.78008, -122.42017], markerOptions).addTo(myMap);
+
+            //var  positionElement = document.getElementById('position');
+
+            /*
+            * Adds first marker
+            */
+            
+            //map.setView([50.8515, 4.3705], 13);
+
+            function drawMarkerOnMap(geoResponse, position, i) {
+				var imgStr = '';
+					if (document.getElementById('PlaceMarker').classList.value == "show") {
+						imgStr = 'ic_map_poi_130-white.png';
+					}
+					if (document.getElementById('PlaceFire').classList.value == "show") {
+						imgStr = 'ic_map_poi_068-white.png';
+					}
+					console.log(imgStr);
+					var mymarkerOptions = {
+						icon: tomtom.L.svgIcon({
+							icon: {
+								icon: imgStr,
+								iconSize: [32, 37],
+								iconAnchor: [0, 0],
+								style: {
+									color: '#fff'
+								},
+								noPlainSVG: true
+							}
+						})
+					};
+				if (i == 0){
+					
+					marker = tomtom.L.marker([position.lat, position.lng], mymarkerOptions).addTo(myMap);
+				};
+                var popupContent;
+                if (typeof position === 'string') {
+                    position = position.split(/[, ]+/);
+                } else if (position === undefined) {
+                    position = [0, 0];
+                }
+                if (geoResponse) {
+                    popupContent = geoResponse.address.freeformAddress || 'Cannot get free-form address.';
+                } else {
+                    popupContent = 'Cannot find given location.</br>Try to zoom in or click on another place.';
+                }
+                myMap.removeLayer(marker);
+				console.log(mymarkerOptions);
+                marker = tomtom.L.marker(position, mymarkerOptions).addTo(myMap);
+                
+				sessionStorage.setItem("lat", position.lat);
+				sessionStorage.setItem("lng", position.lng);
+            }
+
+            function reverseGeocodeRequest(position, i) {
+                tomtom.reverseGeocode().position(position).go(function(geoResponse) {
+                    drawMarkerOnMap(geoResponse, position, i);
+                });
+            }
+
+            /*
+            * Manages clicks on the map (showing marker with full address in the clicked place on the map)
+            */
+			
+            
+
+            document.getElementById('PlaceMarker').onclick = function() {
+				document.getElementById('PlaceMarker').classList.remove("show");
+				document.getElementById('AddMarker').classList.remove("hidden");
+				document.getElementById('AddFire').classList.remove("hidden");
+				document.getElementById('PlaceMarker').classList.add("hidden");
+				document.getElementById('AddMarker').classList.add("show");
+				document.getElementById('AddFire').classList.add("show");
+                window.sessionStorage.setItem("canPlace", "False")
+			};
+			document.getElementById('AddMarker').onclick = function() {
+				document.getElementById('AddMarker').classList.remove("show");
+				document.getElementById('PlaceMarker').classList.remove("hidden");
+				document.getElementById('AddFire').classList.remove("show");
+				document.getElementById('PlaceFire').classList.remove("show");
+				document.getElementById('AddMarker').classList.add("hidden");
+				document.getElementById('AddFire').classList.add("hidden");
+				document.getElementById('PlaceFire').classList.add("hidden");
+				document.getElementById('PlaceMarker').classList.add("show");
+				window.sessionStorage.setItem("canPlace", "True");
+				i = 0;
+				var debrisOptions = {
+					icon: tomtom.L.svgIcon({
+						icon: {
+							icon: 'ic_map_poi_130-white.png',
+							iconSize: [32, 37],
+							iconAnchor: [0, 0],
+							style: {
+								color: '#fff'
+							},
+							noPlainSVG: true
+						}
+					})
+				};
+                myMap.on('click', function(event) {
+				if (window.sessionStorage.getItem("canPlace") == "True") {
+					reverseGeocodeRequest(event.latlng, i);
+					i = i + 1
+				};
+            });
+            };
+			
+			
+			document.getElementById('PlaceFire').onclick = function() {
+				document.getElementById('AddMarker').classList.remove("hidden");
+				document.getElementById('PlaceMarker').classList.remove("show");
+				document.getElementById('AddFire').classList.remove("hidden");
+				document.getElementById('PlaceFire').classList.remove("show");
+				document.getElementById('AddMarker').classList.add("show");
+				document.getElementById('PlaceMarker').classList.add("hidden");
+				document.getElementById('AddFire').classList.add("show");
+				document.getElementById('PlaceFire').classList.add("hidden");
+                window.sessionStorage.setItem("canPlace", "False")
+			};
+			document.getElementById('AddFire').onclick = function() {
+				document.getElementById('AddMarker').classList.remove("show");
+				document.getElementById('PlaceMarker').classList.remove("show");
+				document.getElementById('AddFire').classList.remove("show");
+				document.getElementById('PlaceFire').classList.remove("hidden");
+				document.getElementById('AddMarker').classList.add("hidden");
+				document.getElementById('PlaceMarker').classList.add("hidden");
+				document.getElementById('AddFire').classList.add("hidden");
+				document.getElementById('PlaceFire').classList.add("show");
+				window.sessionStorage.setItem("canPlace", "True");
+				i = 0;
+				var fireOptions = {
+					icon: tomtom.L.svgIcon({
+						icon: {
+							icon: 'ic_map_poi_068-white.png',
+							iconSize: [32, 37],
+							iconAnchor: [0, 0],
+							style: {
+								color: '#fff'
+							},
+							noPlainSVG: true
+						}
+					})
+				};
+                myMap.on('click', function(event) {
+				if (window.sessionStorage.getItem("canPlace") == "True") {
+					reverseGeocodeRequest(event.latlng, i);
+					i = i + 1
+				};
+            });
+            };
+        })(tomtom);
+    </script>
+</body>
+</html>
